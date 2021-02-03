@@ -1,5 +1,6 @@
 const express = require('express');
 const userController = require('./../controllers/userController');
+const authController = require('./../controllers/authController');
 
 // the router formerly known as userRouter
 const router = express.Router();
@@ -8,6 +9,12 @@ const router = express.Router();
 // router
 //     .route('/allusers')
 //     .get(userController.aliasTopUsers, userController.getAllUsers);
+
+router.post('/signup', authController.signup);
+router.post('/login', authController.login);
+router.post('/forgotPassword', authController.forgotPassword);
+router.patch('/resetPassword/:token', authController.resetPassword);
+router.patch('/updatePassword', authController.protect, authController.updatePassword);
 
 
 router

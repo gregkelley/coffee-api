@@ -1,8 +1,12 @@
 // const fs = require('fs');
 const express = require('express');
 const morgan = require('morgan');
+const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRoutes');
 const orderRouter = require('./routes/orderRoutes');
+
+const globalErrorHandler = require('./controllers/errorController');
+
 
 // create an app instance of express
 const app = express();
@@ -39,5 +43,17 @@ app.use((req, res, next) => {
 // 'mounting' the router on a new route
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/order', orderRouter);
+
+// this has to be here at the end. If it is above, it will supercede other handlers
+// default - 404 - router
+// app.all for all URL verbs: GET, POST, YADA, BITCH
+app.all('*', (req, res, next) => {
+    // #3 - use our own error class to deal with errors.
+    next(new AppError(`Cannot find ${req.originalUrl}`), 404);
+})
+
+// define middleware for handling errors. All errors handled in one place. yay.
+app.use(globalErrorHandler);
+
 
 module.exports = app;
