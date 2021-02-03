@@ -69,6 +69,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
+*.env
 .env
 .env.test
 
@@ -102,3 +103,6 @@ dist
 
 # TernJS port file
 .tern-port
+models/ss.js
+dev-data/data/orders.json
+dev-data/data/customers.json
