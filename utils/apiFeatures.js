@@ -44,6 +44,9 @@ class APIFeatures {
 
     // sort returned data based on whatever
     sort() {
+        // expecting a comma separated string: ?sort=duration,price
+        // if client sends ?sort=duration&sort=price   we get an array. hpp middleware fixes so we don't get
+        // an error, but will only sort on the last item
         if(this.queryString.sort) {
             // how to sort on more than one field: .sort('price ratingsAverage')
             const sortBy = this.queryString.sort.split(',').join(' ');

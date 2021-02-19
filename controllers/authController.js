@@ -8,6 +8,7 @@ const AppError = require('./../utils/appError');
 const sendEmail = require('./../utils/email');
 const crypto = require('crypto');
 
+// function to create JWT security token
 const signToken = id => {
     return jwt.sign(
         { id }, 
@@ -18,7 +19,29 @@ const signToken = id => {
 
 // send a common response to the client
 const createSendToken = (user, statusCode, res) => {
-    const token = signToken(user._id);
+    const token = signToken(user._id); // JWT security token, created using users ID
+
+    // lesson 141 - add jwt security cookie
+    const cookieOptions = {
+        // Set cookie expiration in ms. use var from config file
+        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 *60 *60 *1000),
+        // secure: true,   // only used for production, when using https
+
+        // httpOnly: prevent CSS attacks. Browser receives cookie, stores it then sends it with
+        // each http request. 
+        httpOnly: true  // cookie cannot be accessed or modified in any way by the browser
+    };
+    // set secure option if we are in production
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+    // move the JWT token into a cookie. The browser sends cookie data back with all future 
+    // requests to the server
+    // attach cookie to res obj
+    res.cookie('jwt', token, cookieOptions);
+
+    // do not want to send the encryted password to the client when we create a new user
+    user.password = undefined;   // remove pw from the output
+
     res.status(statusCode).json({
         status: 'success',
         // send the created token to the client. client will need to store this
@@ -128,7 +151,7 @@ exports.protect = catchAsync (async (req, res, next) => {
 // accomplished by wrapping the middleware function in a function that returns the role array
 exports.restrictTo = (...roles) => {
     return (req, res, next) => {
-        // roles ['lead-guide', 'admin']
+        // roles ['customer', 'admin']
         if(!roles.includes(req.user.role)) {
             return next(new AppError('Do not have permission for this action', 403));
         }

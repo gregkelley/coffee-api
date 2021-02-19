@@ -88,6 +88,16 @@ userSchema.pre('save', async function(next) {
     next();
 })
 
+// Lesson 139. Sort for only active users in the generic find all bitches
+// use a regex to get all versions of find*
+userSchema.pre(/^find/, function(next) {
+    // only return records where that active flag is not set to false. not all records have an
+    // active flag because no design was done and users were originally created w/o this flag. _tf
+    // this points to current query
+    this.find({ active: { $ne: false }});
+    next();
+});
+
 // create an instance method - available on all documents of this collection
 userSchema.methods.correctPassword = async function(candidatePassword, userPassword) {
     // returns true if the two passwords are the same
